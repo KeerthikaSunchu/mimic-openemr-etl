@@ -1,6 +1,7 @@
 --
 -- Database: `openemr`
---
+CREATE DATABASE OpenEMR;
+USE OpenEMR;
 
 --
 -- Table structure for table `addresses`
