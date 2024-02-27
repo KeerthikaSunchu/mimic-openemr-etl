@@ -80,14 +80,4 @@ Solution: To address this, we created a detailed document that explained how eac
 
 Solution: To manage this, we scheduled ETL processes during quieter times to minimize disruptions. We also set up a strong backup and recovery plan to handle any issues during system downtime. Communication was key, so we always informed stakeholders well in advance about any planned downtime.
 
-**_CONTRIBUTING_**
 
-Invite others to contribute to the project and provide guidelines for contributions.
-
-**_LICENSE_**
-
-State the project’s license and include a link to the LICENSE file.
-
-**_ACKNOWLEDGMENTS_**
-
-Acknowledge any contributions, data sources, or references used in the project.
