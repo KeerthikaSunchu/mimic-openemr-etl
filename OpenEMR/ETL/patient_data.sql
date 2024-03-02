@@ -97,6 +97,6 @@ FROM mimiciv.patients p
 INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id;
  
 
-UPDATE patient_data SET uuid = UNHEX(REPLACE(UUID(), '-', '')); 
+UPDATE patient_data SET uuid = uuid = uuid_to_bin(uuid()); 
 
 
