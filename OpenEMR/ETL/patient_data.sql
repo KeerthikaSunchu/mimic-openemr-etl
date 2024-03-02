@@ -1,7 +1,8 @@
 -- Loading data from mimiciv database to patient_data table of openemr database 
 
-INSERT INTO openemr.patient_data (DOB, pid, deceased_date, language, status, race, ethnicity, sex) 
+INSERT INTO openemr.patient_data (uuid, DOB, pid, deceased_date, language, status, race, ethnicity, sex) 
 SELECT 
+    UUID_TO_BIN(UUID()) as uuid,
     -- Calculate the new DOB
     DATE_SUB(
         STR_TO_DATE(
@@ -94,9 +95,13 @@ SELECT
         ELSE 'Other'
     END AS sex
 FROM mimiciv.patients p
-INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id;
+INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
+ON DUPLICATE KEY UPDATE 
+    DOB = VALUES(DOB),
+    deceased_date = VALUES(deceased_date),
+    language = VALUES(language),
+    status = VALUES(status),
+    race = VALUES(race),
+    ethnicity = VALUES(ethnicity),
+    sex = VALUES(sex);
  
-
-UPDATE patient_data SET uuid = uuid = uuid_to_bin(uuid()); 
-
-
