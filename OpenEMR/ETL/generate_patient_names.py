@@ -4,7 +4,7 @@ import mysql.connector
 
 # Set up Faker and the MySQL connection
 fake = Faker()
-conn = mysql.connector.connect(user='omop', password='checkTest@123',
+conn = mysql.connector.connect(user='username', password='password',
                               host='localhost',
                               database='openemr')
 cursor = conn.cursor()
