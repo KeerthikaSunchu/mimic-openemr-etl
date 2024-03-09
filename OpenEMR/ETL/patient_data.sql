@@ -1,13 +1,19 @@
 -- Loading data from mimiciv database to patient_data table of openemr database 
 
-INSERT INTO openemr.patient_data (uuid, DOB, pid, deceased_date, language, status, race, ethnicity, sex) 
+INSERT INTO oemr_mohith.patient_data (uuid, DOB, pid, deceased_date, language, status, race, ethnicity, sex) 
 SELECT 
     UUID_TO_BIN(UUID()) as uuid,
     -- Calculate the new DOB
     DATE_SUB(
         STR_TO_DATE(
             CONCAT(
-                ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2) - p.anchor_age,
+                YEAR(adm.admittime) - 
+                (
+                    p.anchor_year - 
+                    (
+                        (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                    )
+                ) - p.anchor_age,
                 '-',
                 MONTH(adm.admittime),
                 '-',
@@ -28,7 +34,13 @@ SELECT
     IF(p.dod IS NOT NULL,
         STR_TO_DATE(
             CONCAT(
-                ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2),
+                YEAR(p.dod) - 
+                (
+                    p.anchor_year - 
+                    (
+                        (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                    )
+                ),
                 '-',
                 MONTH(p.dod),
                 '-',
@@ -39,7 +51,7 @@ SELECT
                     THEN 28
                     ELSE DAY(p.dod)
                 END
-            ),
+            ), 
             '%Y-%m-%d'
         ),
         NULL
@@ -96,6 +108,7 @@ SELECT
     END AS sex
 FROM mimiciv.patients p
 INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
+WHERE p.subject_id = '10000117'
 ON DUPLICATE KEY UPDATE 
     DOB = VALUES(DOB),
     deceased_date = VALUES(deceased_date),
@@ -103,5 +116,8 @@ ON DUPLICATE KEY UPDATE
     status = VALUES(status),
     race = VALUES(race),
     ethnicity = VALUES(ethnicity),
-    sex = VALUES(sex);
- 
+    sex = VALUES(sex); -- Replace '10467237' with an actual subject_id or remove WHERE clause to process all records
+
+
+
+
