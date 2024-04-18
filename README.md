@@ -46,6 +46,7 @@ These objectives aim to create a realistic and effective learning environment wi
 
 
 **_GETTING STARTED_**
+
 **_Prerequisites:_**
 
 Before beginning the installation and setup, ensure that all prerequisites are properly installed and configured. This project utilizes specific software and tools essential for successful integration and operation:
