@@ -57,7 +57,7 @@ Before beginning the installation and setup, ensure that all prerequisites are p
 4. **Python**: Required for additional scripting that may be necessary for data processing and manipulation tasks. Install Python to leverage its powerful libraries and tools for handling large datasets. Download Python
 Ensure that you have all the necessary permissions and access rights to install these components, particularly for the MIMIC-IV dataset which requires approval due to its sensitive nature.
 
-**_ Installation Steps:_**
+**_Installation Steps:_**
 1. **MySQL Database Server Setup**: Follow the link provided to download and install MySQL. Configure the server settings to host both the OpenEMR and MIMIC-IV databases.
 2. **OpenEMR Setup**: Use the provided installation guide to install and configure OpenEMR on your system. Ensure it's set up to connect to your MySQL server.
 3. **MIMIC-IV Data Access and Setup**: Secure access to the MIMIC-IV dataset by following the access instructions carefully, ensuring compliance with all ethical guidelines. Download the dataset and prepare it for integration.
@@ -68,7 +68,7 @@ Follow these steps meticulously to ensure a smooth setup and successful operatio
 
 The data mapping process is a critical step in aligning MIMIC-IV's comprehensive clinical data with OpenEMR's structure. It is meticulously planned and executed using two detailed Excel sheets: one that catalogs all relevant details from MIMIC-IV and another for OpenEMR. These sheets form the backbone of our mapping strategy, ensuring each step is informed and precise.
 
-**_ Steps in the Data Mapping Process:_**
+**_Steps in the Data Mapping Process:_**
 
 - **Field Identification:** We begin by cataloging all relevant fields from both MIMIC-IV and OpenEMR, detailing the content, format, and intended use of each field to lay a solid foundation for accurate mapping.
 - **Analysis and Alignment:** Next, we analyze and compare the field descriptions from both databases to align MIMIC-IV data fields with corresponding fields in OpenEMR. This step ensures that the mappings are both accurate and contextually appropriate for educational and clinical use.
