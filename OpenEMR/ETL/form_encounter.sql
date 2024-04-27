@@ -1,4 +1,5 @@
-INSERT INTO oemr_mohith.form_encounter (uuid, 
+INSERT INTO openemr.form_encounter (
+    `uuid`, 
     facility,
     encounter_type_code,
     encounter_type_description,
@@ -10,12 +11,14 @@ INSERT INTO oemr_mohith.form_encounter (uuid,
     pid,
     reason,
     onset_date,
+    pc_catid,
+    billing_facility,
     facility_id,
     referral_source
 )
 SELECT 
-    UUID_TO_BIN(UUID()) as uuid,
-    'Mohith''s Clinic' AS facility,
+    UNHEX(UUID()) as `uuid`,
+    'Your Clinic Name Here' AS facility,
     CASE 
         WHEN adm.admission_type = 'AMBULATORY OBSERVATION' THEN 'visit-after-hours'
         WHEN adm.admission_type = 'DIRECT EMER.' THEN 'new-patient'
@@ -45,13 +48,27 @@ SELECT
     1 AS provider_id,  -- Assuming a default or fallback value
     STR_TO_DATE(
         CONCAT(
-            ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2),
+            YEAR(adm.admittime) - 
+            (
+                p.anchor_year - 
+                (
+                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                )
+            ),
             '-',
-            MONTH(adm.admittime),
+            LPAD(MONTH(adm.admittime), 2, '0'),
             '-',
-            DAY(adm.admittime)
+            LPAD(CASE 
+                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
+                          ((YEAR(adm.admittime) % 4 != 0) OR 
+                           (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
+                     THEN 28
+                     ELSE DAY(adm.admittime)
+                 END, 2, '0'),
+            ' ',
+            DATE_FORMAT(adm.admittime, '%H:%i:%s')
         ),
-        '%Y-%m-%d'
+        '%Y-%m-%d %H:%i:%s'
     ) AS date,
     CASE 
         WHEN adm.discharge_location = 'HOME' THEN 'home'
@@ -69,29 +86,59 @@ SELECT
     END AS discharge_disposition,
     STR_TO_DATE(
         CONCAT(
-            ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2),
+            YEAR(adm.dischtime) - 
+            (
+                p.anchor_year - 
+                (
+                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                )
+            ),
             '-',
-            MONTH(adm.dischtime),
+            LPAD(MONTH(adm.dischtime), 2, '0'),
             '-',
-            DAY(adm.dischtime)
+            LPAD(CASE 
+                     WHEN MONTH(adm.dischtime) = 2 AND DAY(adm.dischtime) = 29 AND 
+                          ((YEAR(adm.dischtime) % 4 != 0) OR 
+                           (YEAR(adm.dischtime) % 100 = 0 AND YEAR(adm.dischtime) % 400 != 0))
+                     THEN 28
+                     ELSE DAY(adm.dischtime)
+                 END, 2, '0'),
+            ' ',
+            DATE_FORMAT(adm.dischtime, '%H:%i:%s')
         ),
-        '%Y-%m-%d'
-    ) AS date_end,
+        '%Y-%m-%d %H:%i:%s'
+    ) AS date_end,               
     adm.hadm_id AS encounter,
     p.subject_id AS pid,
     (SELECT eventtype FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1) AS reason,
     STR_TO_DATE(
         CONCAT(
-            ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2),
+            YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) - 
+            (
+                p.anchor_year - 
+                (
+                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                )
+            ),
             '-',
-            MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)),
+            LPAD(MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)), 2, '0'),
             '-',
-            DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1))
+            LPAD(CASE 
+                     WHEN MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 2 AND DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 29 AND 
+                          ((YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 4 != 0) OR 
+                           (YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 100 = 0 AND YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 400 != 0))
+                     THEN 28
+                     ELSE DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1))
+                 END, 2, '0'),
+            ' ',
+            DATE_FORMAT((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1), '%H:%i:%s')
         ),
-        '%Y-%m-%d'
+        '%Y-%m-%d %H:%i:%s'
     ) AS onset_date,
-    1 AS facility_id,  -- Using a subquery to ensure a value is always provided
+    10 AS pc_catid,
+    3 AS billing_facility,
+    3 AS facility_id,  -- Using a subquery to ensure a value is always provided
     '' AS referral_source  -- Providing a default value
 FROM mimiciv.patients p
 JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
-WHERE p.subject_id = '10000117';
+;
