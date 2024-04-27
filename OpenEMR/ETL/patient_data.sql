@@ -122,7 +122,6 @@ SELECT
     END AS sex
 FROM mimiciv.patients p
 INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
-WHERE p.subject_id=10000764
 ON DUPLICATE KEY UPDATE 
     DOB = VALUES(DOB),
     deceased_date = VALUES(deceased_date),
@@ -130,4 +129,5 @@ ON DUPLICATE KEY UPDATE
     status = VALUES(status),
     race = VALUES(race),
     ethnicity = VALUES(ethnicity),
-    sex = VALUES(sex); 
+    sex = VALUES(sex)
+; 
