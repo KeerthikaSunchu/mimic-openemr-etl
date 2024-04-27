@@ -1,10 +1,9 @@
-!pip install faker
 from faker import Faker
 import mysql.connector
 
 # Set up Faker and the MySQL connection
 fake = Faker()
-conn = mysql.connector.connect(user='username', password='password',
+conn = mysql.connector.connect(user='root', password='password',
                               host='localhost',
                               database='openemr')
 cursor = conn.cursor()
@@ -31,7 +30,7 @@ for pid, sex in patients:
         # If gender is unknown or other, randomly choose
         fname = fake.first_name()
         lname = fake.last_name()
-    
+
     # Execute the update statement
     cursor.execute(update_sql, (fname, lname, pid))
 
@@ -39,3 +38,4 @@ for pid, sex in patients:
 conn.commit()
 cursor.close()
 conn.close()
+
