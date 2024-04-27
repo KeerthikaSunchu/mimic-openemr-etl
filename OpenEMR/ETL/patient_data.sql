@@ -1,8 +1,15 @@
--- Loading data from mimiciv database to patient_data table of openemr database 
-
-INSERT INTO oemr_mohith.patient_data (uuid, DOB, pid, deceased_date, language, status, race, ethnicity, sex) 
+INSERT INTO openemr.patient_data (
+    `uuid`, 
+    DOB, 
+    pid, 
+    deceased_date, 
+    language, 
+    status, 
+    race, 
+    ethnicity, 
+    sex) 
 SELECT 
-    UUID_TO_BIN(UUID()) as uuid,
+    UNHEX(UUID()) as `uuid`,
     -- Calculate the new DOB
     DATE_SUB(
         STR_TO_DATE(
@@ -15,15 +22,17 @@ SELECT
                     )
                 ) - p.anchor_age,
                 '-',
-                MONTH(adm.admittime),
+                LPAD(MONTH(adm.admittime), 2, '0'),
                 '-',
-                CASE 
-                    WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
-                         ((YEAR(adm.admittime) % 4 != 0) OR 
-                          (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
-                    THEN 28
-                    ELSE DAY(adm.admittime)
-                END
+                LPAD(
+                    CASE 
+                        WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
+                             ((YEAR(adm.admittime) % 4 != 0) OR 
+                              (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
+                        THEN 28
+                        ELSE DAY(adm.admittime)
+                    END, 2, '0'
+                )
             ), 
             '%Y-%m-%d'
         ),
@@ -31,7 +40,8 @@ SELECT
     ) AS DOB,
     p.subject_id AS pid,
     -- Calculate the new deceased_date
-    IF(p.dod IS NOT NULL,
+    IF(
+        p.dod IS NOT NULL,
         STR_TO_DATE(
             CONCAT(
                 YEAR(p.dod) - 
@@ -42,17 +52,21 @@ SELECT
                     )
                 ),
                 '-',
-                MONTH(p.dod),
+                LPAD(MONTH(p.dod), 2, '0'),
                 '-',
-                CASE 
-                    WHEN MONTH(p.dod) = 2 AND DAY(p.dod) = 29 AND 
-                         ((YEAR(p.dod) % 4 != 0) OR 
-                          (YEAR(p.dod) % 100 = 0 AND YEAR(p.dod) % 400 != 0))
-                    THEN 28
-                    ELSE DAY(p.dod)
-                END
+                LPAD(
+                    CASE 
+                        WHEN MONTH(p.dod) = 2 AND DAY(p.dod) = 29 AND 
+                             ((YEAR(p.dod) % 4 != 0) OR 
+                              (YEAR(p.dod) % 100 = 0 AND YEAR(p.dod) % 400 != 0))
+                        THEN 28
+                        ELSE DAY(p.dod)
+                    END, 2, '0'
+                ),
+                ' ',
+                DATE_FORMAT(p.dod, '%H:%i:%s')
             ), 
-            '%Y-%m-%d'
+            '%Y-%m-%d %H:%i:%s'
         ),
         NULL
     ) AS deceased_date,
@@ -108,7 +122,7 @@ SELECT
     END AS sex
 FROM mimiciv.patients p
 INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
-WHERE p.subject_id = '10000117'
+WHERE p.subject_id=10000764
 ON DUPLICATE KEY UPDATE 
     DOB = VALUES(DOB),
     deceased_date = VALUES(deceased_date),
@@ -116,8 +130,4 @@ ON DUPLICATE KEY UPDATE
     status = VALUES(status),
     race = VALUES(race),
     ethnicity = VALUES(ethnicity),
-    sex = VALUES(sex); -- Replace '10467237' with an actual subject_id or remove WHERE clause to process all records
-
-
-
-
+    sex = VALUES(sex); 
