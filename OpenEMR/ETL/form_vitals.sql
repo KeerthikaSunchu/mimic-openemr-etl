@@ -1,5 +1,7 @@
 INSERT INTO openemr.form_vitals (
-    uuid, 
+    `uuid`, 
+    user,
+    groupname,
     activity, 
     date, 
     pid, 
@@ -10,17 +12,33 @@ INSERT INTO openemr.form_vitals (
     BMI
 )
 SELECT 
-    UUID_TO_BIN(UUID()) AS uuid,
+    UNHEX(UUID()) as `uuid`,
+    'admin' AS user,
+    'Default' AS groupname,
     1 AS activity,
     STR_TO_DATE(
         CONCAT(
-            ((SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2),
+            YEAR(omr.chartdate) - 
+            (
+                p.anchor_year - 
+                (
+                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                )
+            ),
             '-',
-            MONTH(omr.chartdate),
+            LPAD(MONTH(omr.chartdate), 2, '0'),
             '-',
-            DAY(omr.chartdate)
+            LPAD(CASE 
+                     WHEN MONTH(omr.chartdate) = 2 AND DAY(omr.chartdate) = 29 AND 
+                          ((YEAR(omr.chartdate) % 4 != 0) OR 
+                           (YEAR(omr.chartdate) % 100 = 0 AND YEAR(omr.chartdate) % 400 != 0))
+                     THEN 28
+                     ELSE DAY(omr.chartdate)
+                 END, 2, '0'),
+            ' ',
+            DATE_FORMAT(omr.chartdate, '%H:%i:%s')
         ),
-        '%Y-%m-%d'
+        '%Y-%m-%d %H:%i:%s'
     ) AS date,
     omr.subject_id AS pid,
     SUBSTRING_INDEX(MAX(CASE WHEN omr.result_name = 'Blood Pressure' THEN omr.result_value END), '/', 1) AS bps,
@@ -30,8 +48,6 @@ SELECT
     MAX(CASE WHEN omr.result_name = 'BMI (kg/m2)' THEN omr.result_value END) AS bmi
 FROM mimiciv.omr omr
 JOIN mimiciv.patients p ON omr.subject_id = p.subject_id
-WHERE omr.subject_id = '10000117'
+INNER JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
 GROUP BY omr.subject_id, omr.chartdate
-HAVING COUNT(DISTINCT CASE WHEN omr.result_name IN ('Blood Pressure', 'Weight (Lbs)', 'Height (Inches)', 'BMI (kg/m2)') THEN omr.result_name END) = 4
-ORDER BY omr.chartdate ASC
-LIMIT 1;
+;
