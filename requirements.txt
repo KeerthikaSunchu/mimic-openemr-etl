@@ -1,0 +1,9 @@
+apt update
+apt install nano
+apt install -y python3
+apt install -y python3-pip
+pip3 install pandas
+pip3 install pymysql
+pip3 install --upgrade pandas sqlalchemy
+pip3 install mysql-connector-python
+pip3 install faker
