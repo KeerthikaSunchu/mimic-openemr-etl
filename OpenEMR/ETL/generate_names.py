@@ -17,19 +17,28 @@ update_sql = "UPDATE patient_data SET fname=%s, lname=%s WHERE pid=%s"
 cursor.execute(select_sql)
 patients = cursor.fetchall()
 
+# Set to store used names to ensure no repeats
+used_names = set()
+
 # For each patient, generate a random name based on gender and update the record
 for pid, sex in patients:
-    # Determine the gender and generate a name
-    if sex == 'Male':
-        fname = fake.first_name_male()
-        lname = fake.last_name_male()
-    elif sex == 'Female':
-        fname = fake.first_name_female()
-        lname = fake.last_name_female()
-    else:
-        # If gender is unknown or other, randomly choose
-        fname = fake.first_name()
-        lname = fake.last_name()
+    while True:
+        # Determine the gender and generate a name
+        if sex == 'Male':
+            fname = fake.first_name_male()
+            lname = fake.last_name_male()
+        elif sex == 'Female':
+            fname = fake.first_name_female()
+            lname = fake.last_name_female()
+        else:
+            # If gender is unknown or other, randomly choose
+            fname = fake.first_name()
+            lname = fake.last_name()
+
+        # Check if the name has been used
+        if (fname, lname) not in used_names:
+            used_names.add((fname, lname))
+            break
 
     # Execute the update statement
     cursor.execute(update_sql, (fname, lname, pid))
@@ -38,4 +47,3 @@ for pid, sex in patients:
 conn.commit()
 cursor.close()
 conn.close()
-
