@@ -10,7 +10,8 @@ INSERT INTO openemr.procedure_order (
     date_collected, 
     order_status, 
     order_priority,
-    order_diagnosis
+    order_diagnosis,
+    procedure_order_type
 )
 SELECT    
     UNHEX(UUID()) as `uuid`,
@@ -71,7 +72,8 @@ SELECT
     (SELECT GROUP_CONCAT(CONCAT('ICD', di.icd_version, ':', di.icd_code) SEPARATOR '; ')
      FROM mimiciv.diagnoses_icd di
      WHERE di.hadm_id = adm.hadm_id
-    ) AS order_diagnosis
+    ) AS order_diagnosis,
+    'laboratory_test' AS procedure_order_type
 
 FROM 
     mimiciv.patients p
@@ -79,8 +81,7 @@ JOIN
     mimiciv.admissions adm ON p.subject_id = adm.subject_id
 JOIN 
     mimiciv.labevents l ON adm.hadm_id = l.hadm_id
-WHERE 
-    p.subject_id = 10000764;
+;
 
 
 -- for loading procedures
@@ -163,5 +164,4 @@ JOIN
     mimiciv.admissions adm ON pi.hadm_id = adm.hadm_id 
 JOIN 
     mimiciv.patients p ON adm.subject_id = p.subject_id 
-WHERE 
-    p.subject_id = 10000764;
+;
