@@ -59,9 +59,7 @@ SELECT
             LPAD(MONTH(adm.admittime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
-                          ((YEAR(adm.admittime) % 4 != 0) OR 
-                           (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
+                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 
                      THEN 28
                      ELSE DAY(adm.admittime)
                  END, 2, '0'),
@@ -97,9 +95,7 @@ SELECT
             LPAD(MONTH(adm.dischtime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(adm.dischtime) = 2 AND DAY(adm.dischtime) = 29 AND 
-                          ((YEAR(adm.dischtime) % 4 != 0) OR 
-                           (YEAR(adm.dischtime) % 100 = 0 AND YEAR(adm.dischtime) % 400 != 0))
+                     WHEN MONTH(adm.dischtime) = 2 AND DAY(adm.dischtime) = 29 
                      THEN 28
                      ELSE DAY(adm.dischtime)
                  END, 2, '0'),
@@ -124,9 +120,7 @@ SELECT
             LPAD(MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 2 AND DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 29 AND 
-                          ((YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 4 != 0) OR 
-                           (YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 100 = 0 AND YEAR((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) % 400 != 0))
+                     WHEN MONTH((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 2 AND DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1)) = 29 
                      THEN 28
                      ELSE DAY((SELECT intime FROM mimiciv.transfers WHERE hadm_id = adm.hadm_id LIMIT 1))
                  END, 2, '0'),
