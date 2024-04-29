@@ -41,9 +41,7 @@ SELECT
             LPAD(MONTH(phar.entertime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(phar.entertime) = 2 AND DAY(phar.entertime) = 29 AND 
-                          ((YEAR(phar.entertime) % 4 != 0) OR 
-                           (YEAR(phar.entertime) % 100 = 0 AND YEAR(phar.entertime) % 400 != 0))
+                     WHEN MONTH(phar.entertime) = 2 AND DAY(phar.entertime) = 29 
                      THEN 28
                      ELSE DAY(phar.entertime)
                  END, 2, '0'),
@@ -70,9 +68,7 @@ SELECT
             LPAD(MONTH(phar.verifiedtime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(phar.verifiedtime) = 2 AND DAY(phar.verifiedtime) = 29 AND 
-                          ((YEAR(phar.verifiedtime) % 4 != 0) OR 
-                           (YEAR(phar.verifiedtime) % 100 = 0 AND YEAR(phar.verifiedtime) % 400 != 0))
+                     WHEN MONTH(phar.verifiedtime) = 2 AND DAY(phar.verifiedtime) = 29 
                      THEN 28
                      ELSE DAY(phar.verifiedtime)
                  END, 2, '0'),
@@ -97,9 +93,7 @@ SELECT
             LPAD(MONTH(phar.starttime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(phar.starttime) = 2 AND DAY(phar.starttime) = 29 AND 
-                          ((YEAR(phar.starttime) % 4 != 0) OR 
-                           (YEAR(phar.starttime) % 100 = 0 AND YEAR(phar.starttime) % 400 != 0))
+                     WHEN MONTH(phar.starttime) = 2 AND DAY(phar.starttime) = 29 
                      THEN 28
                      ELSE DAY(phar.starttime)
                  END, 2, '0'),
@@ -121,9 +115,7 @@ SELECT
             LPAD(MONTH(phar.stoptime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(phar.stoptime) = 2 AND DAY(phar.stoptime) = 29 AND 
-                          ((YEAR(phar.stoptime) % 4 != 0) OR 
-                           (YEAR(phar.stoptime) % 100 = 0 AND YEAR(phar.stoptime) % 400 != 0))
+                     WHEN MONTH(phar.stoptime) = 2 AND DAY(phar.stoptime) = 29 
                      THEN 28
                      ELSE DAY(phar.stoptime)
                  END, 2, '0'),
@@ -150,8 +142,6 @@ LEFT JOIN
     openemr.rxnorm_ndc rxn ON rxn.ATV COLLATE utf8mb4_unicode_ci = presc.ndc COLLATE utf8mb4_unicode_ci
 LEFT JOIN
     openemr.drugs d ON phar.medication COLLATE utf8mb4_unicode_ci = d.name COLLATE utf8mb4_unicode_ci
-WHERE
-    p.subject_id = 10000764
 GROUP BY
     phar.medication,
     CONCAT(presc.dose_val_rx, ' ', presc.dose_unit_rx),
