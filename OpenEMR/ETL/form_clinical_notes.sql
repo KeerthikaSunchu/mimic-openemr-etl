@@ -31,9 +31,7 @@ SELECT
             LPAD(MONTH(dn.storetime), 2, '0'),  -- Month part
             '-', 
             LPAD(CASE 
-                     WHEN MONTH(dn.storetime) = 2 AND DAY(dn.storetime) = 29 AND 
-                          ((YEAR(dn.storetime) % 4 != 0) OR 
-                           (YEAR(dn.storetime) % 100 = 0 AND YEAR(dn.storetime) % 400 != 0))
+                     WHEN MONTH(dn.storetime) = 2 AND DAY(dn.storetime) = 29 
                      THEN 28
                      ELSE DAY(dn.storetime)
                  END, 2, '0'),
