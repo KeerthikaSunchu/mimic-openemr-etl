@@ -23,9 +23,7 @@ SELECT
             LPAD(MONTH(le.charttime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(le.charttime) = 2 AND DAY(le.charttime) = 29 AND 
-                          ((YEAR(le.charttime) % 4 != 0) OR 
-                           (YEAR(le.charttime) % 100 = 0 AND YEAR(le.charttime) % 400 != 0))
+                     WHEN MONTH(le.charttime) = 2 AND DAY(le.charttime) = 29 
                      THEN 28
                      ELSE DAY(le.charttime)
                  END, 2, '0'),
@@ -47,9 +45,7 @@ SELECT
             LPAD(MONTH(le.storetime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(le.storetime) = 2 AND DAY(le.storetime) = 29 AND 
-                          ((YEAR(le.storetime) % 4 != 0) OR 
-                           (YEAR(le.storetime) % 100 = 0 AND YEAR(le.storetime) % 400 != 0))
+                     WHEN MONTH(le.storetime) = 2 AND DAY(le.storetime) = 29 
                      THEN 28
                      ELSE DAY(le.storetime)
                  END, 2, '0'),
@@ -65,4 +61,4 @@ FROM mimiciv.labevents le
 JOIN mimiciv.patients p ON le.subject_id = p.subject_id
 JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
 JOIN openemr.procedure_order po ON le.labevent_id = po.procedure_order_id
-WHERE p.subject_id = '10000764';
+;
