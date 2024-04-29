@@ -32,9 +32,7 @@ SELECT
             LPAD(MONTH(l.charttime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(l.charttime) = 2 AND DAY(l.charttime) = 29 AND 
-                          ((YEAR(l.charttime) % 4 != 0) OR 
-                           (YEAR(l.charttime) % 100 = 0 AND YEAR(l.charttime) % 400 != 0))
+                     WHEN MONTH(l.charttime) = 2 AND DAY(l.charttime) = 29 
                      THEN 28
                      ELSE DAY(l.charttime)
                  END, 2, '0'),
@@ -56,9 +54,7 @@ SELECT
             LPAD(MONTH(l.storetime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(l.storetime) = 2 AND DAY(l.storetime) = 29 AND 
-                          ((YEAR(l.storetime) % 4 != 0) OR 
-                           (YEAR(l.storetime) % 100 = 0 AND YEAR(l.storetime) % 400 != 0))
+                     WHEN MONTH(l.storetime) = 2 AND DAY(l.storetime) = 29
                      THEN 28
                      ELSE DAY(l.storetime)
                  END, 2, '0'),
@@ -116,9 +112,7 @@ SELECT
             LPAD(MONTH(pi.chartdate), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(pi.chartdate) = 2 AND DAY(pi.chartdate) = 29 AND 
-                          ((YEAR(pi.chartdate) % 4 != 0) OR 
-                           (YEAR(pi.chartdate) % 100 = 0 AND YEAR(pi.chartdate) % 400 != 0))
+                     WHEN MONTH(pi.chartdate) = 2 AND DAY(pi.chartdate) = 29 
                      THEN 28
                      ELSE DAY(pi.chartdate)
                  END, 2, '0'),
@@ -140,9 +134,7 @@ SELECT
             LPAD(MONTH(pi.chartdate), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(pi.chartdate) = 2 AND DAY(pi.chartdate) = 29 AND 
-                          ((YEAR(pi.chartdate) % 4 != 0) OR 
-                           (YEAR(pi.chartdate) % 100 = 0 AND YEAR(pi.chartdate) % 400 != 0))
+                     WHEN MONTH(pi.chartdate) = 2 AND DAY(pi.chartdate) = 29 
                      THEN 28
                      ELSE DAY(pi.chartdate)
                  END, 2, '0'),
