@@ -29,9 +29,7 @@ SELECT
             LPAD(MONTH(omr.chartdate), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(omr.chartdate) = 2 AND DAY(omr.chartdate) = 29 AND 
-                          ((YEAR(omr.chartdate) % 4 != 0) OR 
-                           (YEAR(omr.chartdate) % 100 = 0 AND YEAR(omr.chartdate) % 400 != 0))
+                     WHEN MONTH(omr.chartdate) = 2 AND DAY(omr.chartdate) = 29 
                      THEN 28
                      ELSE DAY(omr.chartdate)
                  END, 2, '0'),
