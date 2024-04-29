@@ -17,28 +17,31 @@ INSERT INTO openemr.form_clinical_notes (
 SELECT    
     UNHEX(UUID()) as `uuid`,
     (SELECT IFNULL(MAX(form_id), 0) + 1 FROM openemr.form_clinical_notes) AS form_id,
-    STR_TO_DATE(
-        CONCAT(
-            -- Adjusted year calculation
-            YEAR(dn.storetime) - 
-            (
-                p.anchor_year - 
+    DATE_SUB(
+        STR_TO_DATE(
+            CONCAT(
+                -- Adjusted year calculation
+                YEAR(dn.storetime) - 
                 (
-                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
-                )
-            ),
-            '-',  -- Separator for date parts
-            LPAD(MONTH(dn.storetime), 2, '0'),  -- Month part
-            '-', 
-            LPAD(CASE 
-                     WHEN MONTH(dn.storetime) = 2 AND DAY(dn.storetime) = 29 
-                     THEN 28
-                     ELSE DAY(dn.storetime)
-                 END, 2, '0'),
-            ' ',  -- Separator for date and time parts
-            DATE_FORMAT(dn.storetime, '%H:%i:%s')  -- Time part
-        ), 
-        '%Y-%m-%d %H:%i:%s'
+                    p.anchor_year - 
+                    (
+                        (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
+                    )
+                ),
+                '-',  -- Separator for date parts
+                LPAD(MONTH(dn.storetime), 2, '0'),  -- Month part
+                '-', 
+                LPAD(CASE 
+                         WHEN MONTH(dn.storetime) = 2 AND DAY(dn.storetime) = 29 
+                         THEN 28
+                         ELSE DAY(dn.storetime)
+                     END, 2, '0'),
+                ' ',  -- Separator for date and time parts
+                DATE_FORMAT(dn.storetime, '%H:%i:%s')  -- Time part
+            ), 
+            '%Y-%m-%d %H:%i:%s'
+        ),
+        INTERVAL 0 YEAR
     ) AS date,
     dn.subject_id AS pid,
     dn.hadm_id AS encounter,
