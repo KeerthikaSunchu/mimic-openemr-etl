@@ -64,7 +64,7 @@ SELECT
         '%Y-%m-%d %H:%i:%s'
     ) AS date_collected,
     'complete' as order_status,
-    l.priority as order_priority,
+    'normal' as order_priority,
     (SELECT GROUP_CONCAT(CONCAT('ICD', di.icd_version, ':', di.icd_code) SEPARATOR '; ')
      FROM mimiciv.diagnoses_icd di
      WHERE di.hadm_id = adm.hadm_id
