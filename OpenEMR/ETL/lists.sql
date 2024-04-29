@@ -30,9 +30,7 @@ SELECT
             LPAD(MONTH(adm.admittime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
-                          ((YEAR(adm.admittime) % 4 != 0) OR 
-                           (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
+                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 
                      THEN 28
                      ELSE DAY(adm.admittime)
                  END, 2, '0'),
@@ -65,9 +63,7 @@ SELECT
             LPAD(MONTH(adm.admittime), 2, '0'),
             '-',
             LPAD(CASE 
-                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 AND 
-                          ((YEAR(adm.admittime) % 4 != 0) OR 
-                           (YEAR(adm.admittime) % 100 = 0 AND YEAR(adm.admittime) % 400 != 0))
+                     WHEN MONTH(adm.admittime) = 2 AND DAY(adm.admittime) = 29 
                      THEN 28
                      ELSE DAY(adm.admittime)
                  END, 2, '0'),
