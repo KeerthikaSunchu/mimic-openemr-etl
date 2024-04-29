@@ -53,5 +53,4 @@ JOIN
     mimiciv.admissions adm ON p.subject_id = adm.subject_id
 JOIN 
     openemr.procedure_report rp ON le.labevent_id = rp.procedure_order_id
-WHERE 
-    p.subject_id = '10000764';
+;
