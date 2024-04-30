@@ -26,7 +26,7 @@ INSERT INTO openemr.prescriptions (
     updated_by
 )
 SELECT
-    UNHEX(UUID()) as `uuid`,
+    UNHEX(UUID()) AS `uuid`,
     1 AS provider_id,
     STR_TO_DATE(
         CONCAT(
@@ -78,7 +78,13 @@ SELECT
         '%Y-%m-%d %H:%i:%s'
     ) AS date_modified,
     GROUP_CONCAT(DISTINCT CONCAT(presc.dose_val_rx, ' ', presc.dose_unit_rx) ORDER BY presc.dose_val_rx) AS dosage,
-    ROUND(SUM(presc.form_val_disp), 2) AS quantity,
+    ROUND(SUM(
+        CASE 
+            WHEN presc.form_val_disp RLIKE '^[0-9.]+$' 
+            THEN CAST(presc.form_val_disp AS DOUBLE)
+            ELSE 0
+        END
+    ), 2) AS quantity,
     GROUP_CONCAT(DISTINCT rxn.RXCUI ORDER BY rxn.RXCUI) AS rxnorm_drugcode,
     MIN(DATE(STR_TO_DATE(
         CONCAT(
@@ -147,5 +153,3 @@ GROUP BY
     CONCAT(presc.dose_val_rx, ' ', presc.dose_unit_rx),
     DATE(phar.entertime),
     rxn.RXCUI;
-
-
