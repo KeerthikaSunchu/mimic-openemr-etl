@@ -44,7 +44,12 @@ SELECT
     MAX(
     CASE 
         WHEN omr.result_name = 'Weight (Lbs)' 
-        THEN LEAST(CAST(omr.result_value AS DECIMAL(12,6)), 999999.999999)
+        THEN CAST(
+                LEFT(
+                    omr.result_value,
+                    LOCATE('.', omr.result_value) + 6  
+                ) AS DECIMAL(12,6)
+             )
     END
 	) AS weight,
     MAX(CASE WHEN omr.result_name = 'Height (Inches)' THEN omr.result_value END) AS height,
