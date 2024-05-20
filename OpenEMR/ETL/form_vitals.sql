@@ -41,7 +41,12 @@ SELECT
     omr.subject_id AS pid,
     SUBSTRING_INDEX(MAX(CASE WHEN omr.result_name = 'Blood Pressure' THEN omr.result_value END), '/', 1) AS bps,
     SUBSTRING_INDEX(MAX(CASE WHEN omr.result_name = 'Blood Pressure' THEN omr.result_value END), '/', -1) AS bpd,
-    MAX(CASE WHEN omr.result_name = 'Weight (Lbs)' THEN omr.result_value END) AS weight,
+    MAX(
+    CASE 
+        WHEN omr.result_name = 'Weight (Lbs)' 
+        THEN LEAST(CAST(omr.result_value AS DECIMAL(12,6)), 999999.999999)
+    END
+	) AS weight,
     MAX(CASE WHEN omr.result_name = 'Height (Inches)' THEN omr.result_value END) AS height,
     MAX(CASE WHEN omr.result_name = 'BMI (kg/m2)' THEN omr.result_value END) AS bmi
 FROM mimiciv.omr omr
