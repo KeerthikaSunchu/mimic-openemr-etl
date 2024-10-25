@@ -1,64 +1,52 @@
-INSERT INTO openemr.procedure_report (
-    uuid,
-    procedure_order_id, 
-    date_collected,
-    date_report,
-    report_notes,
-    report_status,
-    review_status
-    )
+-- Create a temporary table for year difference calculation
+CREATE TEMPORARY TABLE IF NOT EXISTS openemr.temp_patient_year_diff AS
+SELECT 
+    subject_id,
+    anchor_year - ((SUBSTRING_INDEX(anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(anchor_year_group, ' - ', 1)) / 2) AS year_diff
+FROM 
+    mimiciv.patients;
+
+-- Create an index on the temporary table
+CREATE INDEX idx_temp_patient_year_diff ON openemr.temp_patient_year_diff (subject_id);
+----
+CREATE TABLE IF NOT EXISTS openemr.temp_labevents AS 
+SELECT 
+charttime,
+storetime,
+comments,
+flag,
+ref_range_lower,
+valuenum,
+valueuom,
+itemid,
+subject_id,
+labevent_id 
+FROM
+mimiciv.labevents;
+
+CREATE INDEX idx_procedure_order_id ON openemr.procedure_order (procedure_order_id);
+CREATE INDEX idx_temp_labevents_id ON openemr.temp_labevents (labevent_id);
+
+CREATE TABLE IF NOT EXISTS openemr.temp_admissions AS 
+SELECT *
+FROM
+mimiciv.admissions;
+
+create index idx_admissions_hadm_id on openemr.temp_admissions (hadm_id);
+-- Main query to insert into procedure_report
+create table openemr.temp_procedure_report AS 
 SELECT 
     UNHEX(UUID()) as `uuid`,
     po.procedure_order_id AS procedure_order_id,
-    STR_TO_DATE(
-        CONCAT(
-            YEAR(le.charttime) - 
-            (
-                p.anchor_year - 
-                (
-                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
-                )
-            ),
-            '-',
-            LPAD(MONTH(le.charttime), 2, '0'),
-            '-',
-            LPAD(CASE 
-                     WHEN MONTH(le.charttime) = 2 AND DAY(le.charttime) = 29 
-                     THEN 28
-                     ELSE DAY(le.charttime)
-                 END, 2, '0'),
-            ' ',
-            DATE_FORMAT(le.charttime, '%H:%i:%s')
-        ),
-        '%Y-%m-%d %H:%i:%s'
-    ) AS date_collected,
-    STR_TO_DATE(
-        CONCAT(
-            YEAR(le.storetime) - 
-            (
-                p.anchor_year - 
-                (
-                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
-                )
-            ),
-            '-',
-            LPAD(MONTH(le.storetime), 2, '0'),
-            '-',
-            LPAD(CASE 
-                     WHEN MONTH(le.storetime) = 2 AND DAY(le.storetime) = 29 
-                     THEN 28
-                     ELSE DAY(le.storetime)
-                 END, 2, '0'),
-            ' ',
-            DATE_FORMAT(le.storetime, '%H:%i:%s')
-        ),
-        '%Y-%m-%d %H:%i:%s'
-    ) AS date_report,
+    po.date_ordered AS date_collected,
+    po.date_collected AS date_report,
     LEFT(le.comments, 255) AS report_notes,
     'final' AS report_status,
     'reviewed' AS review_status
-FROM mimiciv.labevents le
-JOIN mimiciv.patients p ON le.subject_id = p.subject_id
-JOIN mimiciv.admissions adm ON p.subject_id = adm.subject_id
-JOIN openemr.procedure_order po ON le.labevent_id = po.procedure_order_id
-;
+FROM 
+    openemr.temp_labevents le
+JOIN 
+    openemr.procedure_order po ON le.labevent_id = po.procedure_order_id;
+
+-- Drop the temporary table after use
+DROP TEMPORARY TABLE IF EXISTS mimiciv.temp_patient_year_diff;
