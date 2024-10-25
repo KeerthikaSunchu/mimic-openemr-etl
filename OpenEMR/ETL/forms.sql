@@ -1,26 +1,27 @@
-use openemr;
--- to display vitals
+-- Create temporary table for form_vitals with indexing
+CREATE TABLE IF NOT EXISTS openemr.temp_form_vitals AS
+SELECT 
+    fv.`date`, 
+    fv.id, 
+    fv.pid, 
+    fv.user, 
+    fv.groupname
+FROM 
+    openemr.form_vitals fv;
 
-INSERT INTO forms (
-    date, 
-    encounter, 
-    form_name, 
-    form_id, 
-    pid, 
-    user, 
-    groupname, 
-    authorized, 
-    formdir, 
-    therapy_group_id
-)
+CREATE INDEX idx_temp_form_vitals_pid ON openemr.temp_form_vitals (pid);
+CREATE INDEX idx_temp_form_vitals_date ON openemr.temp_form_vitals (`date`);
+
+-- Insert into forms for displaying vitals
+CREATE TABLE openemr.temp_formsV AS
 SELECT
-    fv.date AS date,
+    fv.`date` AS `date`,
     (
         SELECT fe.encounter
-        FROM form_encounter fe
+        FROM openemr.form_encounter fe
         WHERE fe.pid = fv.pid
-        AND fe.date <= fv.date
-        ORDER BY fe.date DESC
+        AND fe.`date` <= fv.`date`
+        ORDER BY fe.`date` DESC
         LIMIT 1
     ) AS encounter,
     'Vitals' AS form_name,
@@ -31,91 +32,81 @@ SELECT
     1 AS authorized,
     'vitals' AS formdir,
     NULL AS therapy_group_id
-FROM form_vitals fv;
+FROM openemr.temp_form_vitals fv;
 
--- to display encounters
 
-INSERT INTO openemr.forms (
-    date,
-    encounter,
-    form_name,
-    form_id,
-    pid,
-    user,
-    groupname,
-    authorized,
-    deleted,
-    formdir,
-    therapy_group_id,
-    issue_id,
-    provider_id
-)
-SELECT
-    fe.date AS date,
-    fe.encounter AS encounter,
-    'New Patient Encounter' AS form_name, -- Name of the form, adjust as needed
-    fe.id AS form_id, -- Assuming `id` from form_encounter is what you want to reference
-    fe.pid AS pid,
-    'admin' AS user, -- Replace 'default_user' with actual user ID/name if available
-    'Default' AS groupname, -- Replace 'default' with actual groupname if available
-    1 AS authorized, -- Assuming form should be marked as authorized
-    0 AS deleted, -- Assuming form should not be marked as deleted
-    'newpatient' AS formdir, -- The directory for new patient forms, adjust if necessary
-    NULL AS therapy_group_id, -- Assuming not applicable; adjust as needed
-    0 AS issue_id, -- Assuming not applicable; adjust as needed
-    fe.provider_id AS provider_id 
-FROM
+
+-- Create temporary table for form_encounter with indexing
+CREATE TABLE IF NOT EXISTS openemr.temp_form_encounter AS
+SELECT 
+    fe.`date`, 
+    fe.encounter, 
+    fe.id, 
+    fe.pid, 
+    fe.provider_id 
+FROM 
     openemr.form_encounter fe;
 
--- to display procedure orders
+CREATE INDEX idx_temp_form_encounter_pid ON openemr.temp_form_encounter (pid);
+CREATE INDEX idx_temp_form_encounter_encounter ON openemr.temp_form_encounter (encounter);
 
-INSERT INTO openemr.forms (
-    date,
-    encounter,
-    form_name,
-    form_id,
-    pid,
-    user,
-    groupname,
-    authorized,
-    deleted,
-    formdir,
-    therapy_group_id,
-    issue_id,
-    provider_id
-)
+-- Insert into forms for displaying encounters
+CREATE TABLE IF NOT EXISTS openemr.temp_formsE AS 
+SELECT 
+    fe.`date` AS `date`,
+    fe.encounter AS encounter,
+    'New Patient Encounter' AS form_name,
+    fe.id AS form_id,
+    fe.pid AS pid,
+    'admin' AS user,
+    'Default' AS groupname,
+    1 AS authorized,
+    0 AS deleted,
+    'newpatient' AS formdir,
+    NULL AS therapy_group_id,
+    0 AS issue_id,
+    fe.provider_id AS provider_id 
+FROM openemr.temp_form_encounter fe;
+
+-- Create temporary table for procedure_order with indexing
+
+
+
+-- Insert into forms for displaying procedure orders
+CREATE TABLE IF NOT EXISTS openemr.temp_formsPO AS
 SELECT
     po.date_ordered AS date,
     po.encounter_id AS encounter,
-    '' AS form_name,  -- Adjust form_name based on your requirements
+    '' AS form_name,
     po.procedure_order_id AS form_id,
     po.patient_id AS pid,
-    'admin' AS user,  -- Replace 'DefaultUser' with the actual default user if available
-    'Default' AS groupname,  -- Replace 'Default' with the actual group name if available
-    1 AS authorized,  -- Assuming the form should be authorized by default
-    0 AS deleted,  -- Assuming the form is not deleted
-    'procedure_order' AS formdir,  -- The directory name for procedure order forms
-    NULL AS therapy_group_id,  -- Assuming not applicable to procedure orders
-    0 AS issue_id,  -- Assuming not applicable to procedure orders
+    'admin' AS user,
+    'Default' AS groupname,
+    1 AS authorized,
+    0 AS deleted,
+    'procedure_order' AS formdir,
+    NULL AS therapy_group_id,
+    0 AS issue_id,
     po.provider_id AS provider_id
-FROM
-    openemr.procedure_order po;
-    
--- to display notes
+FROM openemr.temp_procedure_order po;
 
-INSERT INTO forms (
-    date, 
-    encounter, 
-    form_name, 
-    form_id, 
-    pid, 
-    user, 
-    groupname, 
-    authorized, 
-    formdir, 
-    therapy_group_id,
-    provider_id
-)
+-- Create temporary table for form_clinical_notes with indexing
+CREATE TABLE IF NOT EXISTS openemr.temp_form_clinical_notes AS
+SELECT 
+    fc.`date`, 
+    fc.encounter, 
+    fc.id, 
+    fc.pid, 
+    fc.user, 
+    fc.groupname 
+FROM 
+    openemr.form_clinical_notes fc;
+
+CREATE INDEX idx_temp_form_clinical_notes_pid ON openemr.temp_form_clinical_notes (pid);
+CREATE INDEX idx_temp_form_clinical_notes_encounter ON openemr.temp_form_clinical_notes (encounter);
+
+-- Insert into forms for displaying notes
+CREATE TABLE IF NOT EXISTS openemr.temp_formsCN AS
 SELECT
     fc.date AS date,
     fc.encounter AS encounter,
@@ -128,6 +119,10 @@ SELECT
     'clinical_notes' AS formdir,
     NULL AS therapy_group_id,
     1 AS provider_id
-FROM form_clinical_notes fc;
+FROM openemr.temp_form_clinical_notes fc;
 
-    
+-- Clean up temporary tables
+DROP TEMPORARY TABLE IF EXISTS mimiciv.temp_form_vitals;
+DROP TEMPORARY TABLE IF EXISTS mimiciv.temp_form_encounter;
+DROP TEMPORARY TABLE IF EXISTS mimiciv.temp_procedure_order;
+DROP TEMPORARY TABLE IF EXISTS mimiciv.temp_form_clinical_notes;
