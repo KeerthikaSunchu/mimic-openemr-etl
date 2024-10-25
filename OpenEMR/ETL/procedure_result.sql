@@ -1,40 +1,27 @@
-INSERT INTO openemr.procedure_result (
-    uuid,
-    date, 
-    result_text, 
-    abnormal, 
-    `range`, 
-    result, 
-    units, 
-    procedure_report_id,
-    result_status,
-    result_code
-    
-)
+-- Create an index on the temporary table
+CREATE INDEX idx_procedure_report_id ON openemr.procedure_report (procedure_order_id);
+
+CREATE TABLE IF NOT EXISTS openemr.temp_labevents AS 
+SELECT 
+labevent_id,
+charttime,
+storetime,
+comments,
+flag,
+ref_range_lower,
+ref_range_upper,
+valuenum,
+valueuom,
+itemid,
+subject_id
+FROM
+mimiciv.labevents;
+
+-- Main query to insert into procedure_result
+create table openemr.temp_procedure_result AS 
 SELECT    
     UNHEX(UUID()) as `uuid`,
-    STR_TO_DATE(
-        CONCAT(
-            YEAR(le.storetime) - 
-            (
-                p.anchor_year - 
-                (
-                    (SUBSTRING_INDEX(p.anchor_year_group, ' - ', -1) + SUBSTRING_INDEX(p.anchor_year_group, ' - ', 1)) / 2
-                )
-            ),
-            '-',
-            LPAD(MONTH(le.storetime), 2, '0'),
-            '-',
-            LPAD(CASE 
-                     WHEN MONTH(le.storetime) = 2 AND DAY(le.storetime) = 29
-                     THEN 28
-                     ELSE DAY(le.storetime)
-                 END, 2, '0'),
-            ' ',
-            DATE_FORMAT(le.storetime, '%H:%i:%s')
-        ),
-        '%Y-%m-%d %H:%i:%s'
-    ) AS date,
+    rp.date_collected AS `date`,
     COALESCE(LEFT(le.comments, 255), '') AS result_text,
     IF(le.flag IS NULL OR le.flag = '', 'normal', le.flag) AS abnormal,
     CONCAT(IFNULL(le.ref_range_lower,''), '-', IFNULL(le.ref_range_upper,'')) AS `range`,
@@ -44,11 +31,7 @@ SELECT
     'final' AS result_status,
     le.itemid AS result_code
 FROM 
-    mimiciv.patients p
+    openemr.temp_labevents le
 JOIN 
-    mimiciv.labevents le ON p.subject_id = le.subject_id
-JOIN 
-    mimiciv.admissions adm ON p.subject_id = adm.subject_id
-JOIN 
-    openemr.procedure_report rp ON le.labevent_id = rp.procedure_order_id
-;
+    openemr.procedure_report rp ON le.labevent_id = rp.procedure_order_id;
+
