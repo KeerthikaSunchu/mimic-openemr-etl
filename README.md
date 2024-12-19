@@ -78,6 +78,7 @@ The data mapping process is a critical step in aligning MIMIC-IV's comprehensive
 - **Considerations:** Throughout the mapping process, we emphasize maintaining data integrity and ensuring compliance with healthcare regulations and privacy standards. The mapping strategy is designed with flexibility to accommodate the diverse needs of OpenEMR users, allowing for future customizations.
 
 This structured approach ensures that the integration of data not only meets the functional requirements of OpenEMR but also upholds the highest standards of data quality and compliance, enhancing the system’s educational and clinical value.
+Link to the mapping spreadsheet: https://indiana-my.sharepoint.com/:x:/g/personal/mkasula_iu_edu/EayWKj5Z1RNGoB3Gt2oN_VYBuvAQ08yCru3Lkhh6PZlOPQ?e=BDkdhS 
 
 **_Challenges and Solutions_**
 
